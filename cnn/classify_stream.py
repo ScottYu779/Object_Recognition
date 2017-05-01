@@ -42,22 +42,25 @@ net.blobs['data'].reshape(1,1,32,32)
 #time.sleep(0.5)
 
 
-fil1 = open("/home/ubuntu/ardop/stereo_app/mutex.txt",'r+')
-fil = open("/home/ubuntu/ardop/stereo_app/coordinates.txt",'r')
 
-
-lines = fil.readlines()
-fil.close()
-m = fil1.readline()
-fil1.close()
+c_str = 0 
 while(1):
-	time.sleep(0.1)
+
+	fil1 = open("/home/ubuntu/ardop/stereo_app/mutex.txt",'r+')
+	m = fil1.readline()
+	fil1.close()
+	fil = open("/home/ubuntu/ardop/stereo_app/coordinates.txt",'r')
+	lines = fil.readlines()
+	fil.close()
+	#time.sleep(0.1)
 	classification_list = []
 	if(int(m,10)==0):
+		c_str=c_str + 1
+		#print c_str
 		for f in lines:
 			fs = f.split()
-			
 			img = caffe.io.load_image('/home/ubuntu/ardop/stereo_app/objects/'+fs[0]+'.jpg',0)
+				#time.sleep(0.1)
 			img = cv2.resize(img, (32, 32), interpolation = cv2.INTER_CUBIC)
 			#img = cv2.equalizeHist(img);
 			c = classify(img)
@@ -79,7 +82,8 @@ while(1):
 		
 	
 	else:
-		print "Waiting for mutex"
+		pass
+		#print "Waiting for mutex"
 		#fil1.close()
 		#fil2.close()
 		
