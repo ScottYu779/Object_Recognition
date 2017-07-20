@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <math.h>
+
 #include <sstream>
 #include <string>
 #include <fstream>
@@ -14,7 +15,7 @@
 using namespace std;
 using namespace cv;
 
-#define WIDTH	352
+#define WIDTH	368
 #define HEIGHT	224
 #define FPS		20
 
@@ -106,12 +107,20 @@ Point create_line_x(int x1, int x2, int y1, int y2, int y)
 bool inorout(Point pt)
 {
 		Point ct[4];
-		ct[0] = create_line_x(6,95,103,198,pt.y);
-		ct[1] = create_line_y(95,241,198,153,pt.x);
-		ct[2] = create_line_x(241,255,153,24,pt.y);
-		ct[3] = create_line_y(6,255,103,24,pt.x);
-
-		if(ct[1].y>pt.y && ct[3].y<pt.y && ct[0].x<pt.x && ct[2].x>pt.x) 
+		Point tl,tr,bl,br; 
+		tl.x = 55;
+		tl.y = 172;
+		tr.x = 274; 
+		tr.y = 163;
+		br.x = 304;
+		br.y = 43;
+		bl.x = 11;
+		bl.y = 49;
+		ct[0] = create_line_x(tr.x,br.x,tr.y,br.y,pt.y);
+		ct[1] = create_line_y(tl.x,tr.x,tl.y,tr.y,pt.x);
+		ct[2] = create_line_x(bl.x,tl.x,bl.y,tl.y,pt.y);
+		ct[3] = create_line_y(bl.x,br.x,bl.y,br.y,pt.x);
+		if(ct[1].y>pt.y && ct[3].y<pt.y && ct[0].x>pt.x && ct[2].x<pt.x) 
 			return 1;
 		else
 			return 0;
@@ -259,7 +268,7 @@ int main(int argc, char* argv[])
 	fstream mut,cl;
 	cvNamedWindow("Control");
 	char LED[5] = "LED", GAIN[5] = "GAIN", EXPOSURE[10] = "EXPOSURE";
-	int led_slider = 15,gain_slider = 100 ,exposure_slider= 100;
+	int led_slider = 15,gain_slider = 0 ,exposure_slider= 100;
 	createTrackbar( LED, "Control", &led_slider, 100, on_trackbar_led );
 	createTrackbar( GAIN, "Control", &gain_slider, 100, on_trackbar_gain );
 	createTrackbar( EXPOSURE, "Control", &exposure_slider, 100, on_trackbar_exposure );
@@ -318,7 +327,7 @@ int main(int argc, char* argv[])
 	}
 	// Set Dense3D parameters
 	SetDense3DScale(dense3d, 0);
-	SetDense3DMode(dense3d, 0);
+	SetDense3DMode(dense3d, 2);
 	SetDense3DCalibration(dense3d, &params);
 	SetDense3DNumDisparities(dense3d, 2);
 	SetDense3DSADWindowSize(dense3d, 10);
@@ -426,7 +435,8 @@ int main(int argc, char* argv[])
 		vector<int> area,final_area;
 		vector<Point> mid;
 		file.open("coordinates.txt");
-		kin_file.open("ik_file.txt");
+		//kin_file.open("ik_file.txt");
+		kin_file.open("ik_pickdrop.txt");
 		int max_area = 0;
 		//blur(edge, edge, Size(4,4));
 		int edgeThresh = 40;
@@ -443,8 +453,9 @@ int main(int argc, char* argv[])
 		  
 			int temp;
 			Point temp_mid;
-			temp_mid.x = boundRect[i].x + boundRect[i].width/2;
-			temp_mid.y = 240 - (boundRect[i].y + boundRect[i].height/2);
+			int max_wh = max(boundRect[i].width,boundRect[i].height);
+			temp_mid.x = boundRect[i].x + max_wh/2;
+			temp_mid.y = 240 - (boundRect[i].y + max_wh/2);
 			mid.push_back(temp_mid);
 			temp = boundRect[i].height * boundRect[i].width;
 			area.push_back(temp);
@@ -481,71 +492,44 @@ int main(int argc, char* argv[])
 			rectangle( drawing, final_bound[i].tl(), final_bound[i].br(), color, 2, 8, 0 );
 			rectangle( display, final_bound[i].tl(), final_bound[i].br(), color, 2, 8, 0 );
 			name = "./objects/" + numtostr(i) + ".jpg";
-			//twoval p1,p2,p3,p4;
-			//Point pa,pb;
-			//Point center;
-			//center.x = final_mid[i].x;
-			//center.y = final_mid[i].y; 
-			//p1 = find_slope(46,58,99,37,center.x,center.y);
-			//p2 = find_slope(52,171,23,147,52,171);
-			//p3 = find_slope(52,171,23,147,center.x,center.y);
-			//p4 = find_slope(46,58,99,37,46,58);
-			//pa = find_intercept(p1,p2);
-			//pb = find_intercept(p3,p4);
-			//double dist1,dist2;
-			//dist1 = distance(pa.x,center.x,pa.y,center.y);
-			//dist2 = distance(pb.x,center.x,pb.y,center.y);
+
 			twoval p1,p2,p3,p4;
 			Point pa,pb;
 			Point center;
 			center.x = final_mid[i].x;
 			center.y = final_mid[i].y; 
-			p1 = find_slope(28,163,7,139,center.x,center.y);
-			p2 = find_slope(42,53,101,32,42,53);
-			p3 = find_slope(42,53,101,32,center.x,center.y);
-			p4 = find_slope(28,163,7,139,28,163);
+			p1 = find_slope(245,123,259,55,center.x,center.y);
+			p2 = find_slope(61,25,181,25,61,25);
+			p3 = find_slope(61,25,181,25,center.x,center.y);
+			p4 = find_slope(245,123,259,55,245,123);
 			pa = find_intercept(p1,p2);
 			pb = find_intercept(p3,p4);
 			double dist1,dist2;
+			int x_diff,y_diff;
+			x_diff = center.x - 160;
+			y_diff = center.y - 120;
+			//cout<<x_diff<<" "<<y_diff<<"\n";
 			//double const1=2.4876,const2=4.83;
 
 			int box_width, box_height;
 			box_width = final_bound[i].width;
 			box_height = final_bound[i].height;
-			double const1=0.2572,const2=0.10318,const3=0.001458, const4 = 0.11760;
-			dist1 = (distance(pb.x,center.x,pb.y,center.y))*const1 + const2*box_width;
-			dist2 = pow(distance(pa.x,center.x,pa.y,center.y),2)*const3 + const4*box_height;
+			//double const1=0.2572,const2=0.10318,const3=0.001458, const4 = 0.11760;
+			//dist1 = (distance(pb.x,center.x,pb.y,center.y))*const1 + const2*box_width;
+			//dist2 = pow(distance(pa.x,center.x,pa.y,center.y),2)*const3 + const4*box_height;
+			double const1 = 0.1024, const2 = 1.15329;
+			double const3 = 0.22287, const4 = 0.30521;
+			dist2 = const1*(pow(distance(pa.x,center.x,pa.y,center.y),const2));
+			dist1 = const3*(distance(pb.x,center.x,pb.y,center.y)) + const4*dist2;
 			kalman_filter(dist1, 0);
 			kalman_filter(dist2, 1);
 			kalman_filter(box_width, 2);
 			kalman_filter(box_height, 3);
-			cout<<center.x<<" "<<center.y<<endl;
-			cout<<"Distance: "<<dist1<<" "<<dist2<<" "<<box_width<<" "<<box_height<< "         " << state_prev[0] << " " << state_prev[1] <<" "<< state_prev[2]<<" "<<state_prev[3]<< endl;
-			putText(drawing,"HI",center,0,0.5,color,1,8,0); 
+
 			box_obj.n=i;
 			box_obj.r=final_bound[i];
-			
-			box_obj.v= depth3d(final_bound[i].x+final_bound[i].width/2,final_bound[i].y+final_bound[i].height/2);
-			
-			//Running Kalman Filter for the x, y and z values if the values are bounded
-			
-			//if(box_obj.v[2] < 5000)
-			//{
-				//kalman_filter(box_obj.v[0], 0);
-				//kalman_filter(box_obj.v[1], 1);
-				//kalman_filter(box_obj.v[2], 2);
-			//}
-			
-			//cout<<box_obj.v[0]<<" "<<box_obj.v[1]<<" "<<box_obj.v[2] <<  "         ";
-			
-			// printing Filtered depths and distances
-			
-			//cout << state_prev[0] << " " << state_prev[1] << " " << state_prev[2] << endl;
+			box_obj.v=depth3d.at<Vec3f>(Point(final_bound[i].x+final_bound[i].width/2,final_bound[i].y+final_bound[i].height/2));
 
-			kin_file<<(-32.5+6)<<endl;
-			kin_file<<(10+dist2+1.5)<<endl;
-			kin_file<<(52-dist1+4)<<endl;
-			
 			file<<box_obj.n<<" "<<box_obj.r.x+box_obj.r.width/2<<" "<<box_obj.r.y+box_obj.r.height/2<<" "<<box_obj.v[0]<<" "<<box_obj.v[1]<<" "<<box_obj.v[2]<<endl;		
 			//putText(mRGBDepth,"HI",center,0,0.5,color,2,8,0); 
 			hist_mat = left(final_bound[i]);
@@ -560,7 +544,7 @@ int main(int argc, char* argv[])
 
 		imshow("Dense3D Disparity Map", mRGBDepth);
 		file.close();
-		kin_file.close();
+
 		mut.open("mutex.txt");
 		mut.seekg(0, ios::beg);
 		mut<<0;
@@ -593,30 +577,47 @@ int main(int argc, char* argv[])
 			c.push_back(temp_n);
 		}
 		cl.close();
-		//int count = 0;
-		//if(cl.is_open())
-		//{
-			//while(getline(cl, line))
-			//{
-				//temp_n = strtonum(line);
-				//c.push_back(temp_n);
-				//count++;
-				//if(count==final_bound.size())
-					//break;
-			//}	
-		//file.close();
-		//}
+
 		for(int i=0;i<final_bound.size();i++)
 		{
+			box_obj.n=i;
+			box_obj.r=final_bound[i];
+			box_obj.v=depth3d.at<Vec3f>(Point(final_bound[i].x+final_bound[i].width/2,final_bound[i].y+final_bound[i].height/2));
+			double depth_const1 = 18.4, depth_const2=17.6;
+			box_obj.v[0] = box_obj.v[0]/depth_const1;
+			box_obj.v[1] = box_obj.v[1]/depth_const2;
 			string text;
 			if(c[i]==0)
-				text = "BALL";
+			{
+				text = "BALL";				
+				//storing depth to ball in kin_file
+				kin_file<<c[i]<<" ";
+				kin_file<<(-32.5+6)<<" ";
+				kin_file<<(-(box_obj.v[1] - 16.5 -13.7))<<" ";
+				kin_file<<(-(box_obj.v[0] - (-0.8/3)*box_obj.v[0]))<<endl;
+
+			}
 			else if(c[i]==1)
+			{	
 				text = "GLASS";
+				
+				double tmp_ratio = max(final_bound[i].width, final_bound[i].height)/min(final_bound[i].width, final_bound[i].height);
+				double pixel_shift = 0.5/tmp_ratio;
+				
+				double tmp_const_y = 0.22;
+				double tmp_const_z = 0.13;
+				
+				kin_file<<c[i]<<" ";
+				kin_file<<(-32.5+25)<<" ";
+				kin_file<<(-(box_obj.v[1] - 16.5 - 14.7 - tmp_const_y*(box_obj.v[0])))<< " ";
+				//kin_file<<(-(box_obj.v[0] - 2.5 - tmp_const*(0.5 - pixel_shift)*final_bound[i]))<<endl;
+				kin_file<<(-(box_obj.v[0] - 2.5 - tmp_const_z*(-box_obj.v[0])))<<endl;
+			}
 			Scalar color = Scalar(0,255,0);
 			putText(display,text,final_bound[i].tl(),0,0.5,color,2,8,0); 
 			//cout<<"Depth to "<<text<<": "<<box_obj.v[2]<<"mm | ";
 		}
+		kin_file.close();
 		//cout<<endl;
 		ctrl_flag = 0;
 		final_bound.clear();
