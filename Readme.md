@@ -18,7 +18,7 @@ You will have to rebuild the program everytime you modify the code by running `m
 
 #Training 
 1. In order to train the model to fit your training data, modify **lines 15-18 and lines 34-37** in `./cnn/ardopnet_train_test.prototxt` to specify the root directory of your data and the batchsize you wish to use.
-2. If you have more than 2 classes of objects, modify **line 373** to the number of classes that you have. You will also have to modify **line 341** in './cnn/ardopnet_deploy.prototxt`.
+2. If you have more than 2 classes of objects, modify **line 373** to the number of classes that you have. You will also have to modify **line 341** in `./cnn/ardopnet_deploy.prototxt`.
 3. Specify the paths to all your files used for training and test in `./cnn/train.txt` and `./cnn/test.txt` along with the class number like in the sample.
 4. You will have to play around with the values of learning rate, number of iterations, etc in `./cnn/ardopnet_solver.prototxt` for results specific to your data set. 
 5. Run the training process using `sudo sh /cnn/train_ardopnet.sh`. When the training is finished or interupted, the weights will be saved as `ardopnet_iter_X.caffemodel`.
