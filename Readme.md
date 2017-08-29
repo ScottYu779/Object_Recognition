@@ -7,7 +7,7 @@ As Convolution Neural Networks (CNN’s) are used for object classification, the
 
 ##Prerequisites
 
-1.Install caffe by following the instructions at (http://caffe.berkeleyvision.org/installation.html). 
+1. Install caffe by following the instructions at (http://caffe.berkeleyvision.org/installation.html). 
 
 2. Clone the repository using `git clone https://github.com/ardop/Object_Recognition.git`
 
@@ -19,7 +19,7 @@ The training data is created by running: `sudo ./data_collection/photo`
 Place the object on the table and press the **space bar** to take images. You will have to make sure that your object is the only one being detected in the scene.  
 This process is to be repeated for various positions and orientations and after taking sufficient images, close the program and move the images into a separate folder. This process needs to be repeated for all objects that you wish to train.  
 If you wish to restart the program but take more images of the same class later, modify **line 107** in `./data_collection/Photo/Sample.cpp` to continue saving images from that index. Reset this back to 1 once you've finished. 
-You will have to rebuild the program everytime you modify the code by running `make` in `./data_collection'. 
+You will have to rebuild the program everytime you modify the code by running `make` in `./data_collection`. 
 
 ##Training 
 
