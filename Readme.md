@@ -1,16 +1,14 @@
 # Overview
 
 This repository contains code that allows you to train and classify objects in real time. The code was written to run on an NVIDIA Jetson TK1, but should run on any linux system.
-The classified objects were localized using a stereo camera (in this case a DUO MLX stereo camera). If another camera is being used, the input stream needs to be modified in the `./Stereo/Sample.cpp` file and rebuilding the program by running 'make'.
+The classified objects were localized using a stereo camera (in this case a DUO MLX stereo camera). If another camera is being used, the input stream needs to be modified in the `./Stereo/Sample.cpp` file and rebuilt by running `make`.
 At this phase of the project, we have restricted the system to only classify objects placed on a table with a uniform background and the ROI is limited the table. 
-As Convolution Neural Networks (CNN’s) are used for object classification, the exact regions of the frame from the camera stream that contain the objects must be obtained. A contour based localization system is used for this purpose. Bounding boxes are constructed over the contour regions that correspond to objects in the scene and the images obtained from these boxes are fed to the CNN for classification. After this procedure, the identities of the objects as well as its position with respect to the image are known. The position of each of the objects are then determined by the stereo camera.
+Convolution Neural Networks are used for object classification. A contour based localization system is used to find the positions of the objects in each frame. Bounding boxes are constructed over the contour regions that correspond to objects in the scene and the images obtained from these boxes are fed to the CNN for classification. After this procedure, the identities of the objects as well as its position with respect to the image are known. The position of each of the objects are then determined by the stereo camera.
 
 # Prerequisites
 
 1. Install caffe by following the instructions at (http://caffe.berkeleyvision.org/installation.html). 
-
-2. Clone the repository using `git clone https://github.com/ardop/Object_Recognition.git`
-
+2. Clone the repository using `git clone https://github.com/ardop/Object_Recognition.git`.
 3. If you're using the DUO MLX stereo camera, follow the instructions and the documentaton on the website (https://duo3d.com/).
 
 # Data Preparation
@@ -31,9 +29,9 @@ You will have to rebuild the program everytime you modify the code by running `m
 
 # Implementation
 
-1. Modify **line 27** in `./cnn/classify_stream.py` to the name of the file with the trained weights, `ardopnet_iter_X.caffemodel`.
+1. Modify **line 27** in `./cnn/classify_stream.py` to `ardopnet_iter_X.caffemodel`.
 2. Open two terminals. In one terminal run `sudo ./stereo` and in another run `python classify_stream.py`.
 
 The first program will find the bounding boxes of the objects and save the images in a folder. The second program will input the saved images and classify them.
-The position of each of the objects are determined by the first program using the stereo camera and the file required for the inverse kinematic model is generated, `./ik_file.txt`.
+The position of each of the objects are determined by the first program using the stereo camera and the file required for the inverse kinematic model is generated `./ik_file.txt`.
 The process is synchronized using `mutex.txt` and the communication between the program occurs through `coordinates.txt and c.txt`. 
