@@ -1,0 +1,1 @@
+/home/ubuntu/ardop/utilities/PhotoTaker/DUO/Photo/CMakeFiles/photo.dir
